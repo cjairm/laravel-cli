@@ -1,0 +1,105 @@
+version: '3'
+
+networks:
+    app:
+        driver: bridge
+
+volumes:
+    dbdata:
+        driver: local
+
+services:
+    nginx:
+        build:
+            context: .
+            dockerfile: nginx.dockerfile
+        container_name: nginx
+        ports:
+            - "{{APP_PORT}}:80"
+        volumes: 
+            - ./{{APP_NAME}}:/var/www/html
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+        depends_on: 
+            - php
+        networks:
+            - app
+
+    php:
+        build:
+            context: .
+            dockerfile: php.dockerfile
+        container_name: php
+        volumes: 
+            - ./{{APP_NAME}}:/var/www/html
+        ports:
+            - "9000:9000"
+        networks:
+            - app
+
+    composer: 
+        image: composer:latest
+        container_name: composer
+        volumes: 
+            - ./{{APP_NAME}}:/var/www/html
+        working_dir: /var/www/html
+        networks: 
+            - app
+
+    npm: 
+        image: node:alpine
+        container_name: npm
+        volumes: 
+            - ./{{APP_NAME}}:/var/www/html
+        working_dir: /var/www/html
+        entrypoint: ['npm']
+        networks: 
+            - app
+
+    artisan:
+        build: 
+            context: .
+            dockerfile: php.dockerfile
+        container_name: artisan
+        volumes:
+            - ./{{APP_NAME}}:/var/www/html
+        working_dir: /var/www/html
+        entrypoint: ['/var/www/html/artisan']
+        networks: 
+            - app
+
+    db:
+        image: mysql:5.7.37
+        container_name: db
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: db_dev
+            MYSQL_PASSWORD: {{MYSQL_PASSWORD}}
+            MYSQL_ROOT_PASSWORD: {{MYSQL_PASSWORD}}
+            MYSQL_USER: user_dev
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - dbdata:/var/lib/mysql
+        networks:
+            - app
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+        links:
+            - db
+        environment:
+            PMA_HOST: db
+            PMA_PORT: 3306
+            PMA_ARBITRARY: 1
+            UPLOAD_LIMIT: '50M'
+        restart: always
+        depends_on:
+            - db
+        ports:
+            - 8080:80
+        networks:
+            - app
