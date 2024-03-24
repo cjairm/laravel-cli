@@ -49,10 +49,11 @@ From here as simple as
 laravel-cli create docker --dir /path/to/my/new-project
 ```
 
-| Flag name         | Default value       | Description          |
-| ----------------- | ------------------- | -------------------- |
-| `--appName`, `-n` | Parent folder name  | The name of your app |
-| `--appPort`, `-p` | 8000                | The posrt of you app |
+| Flag name         | Default value                 | Description          |
+| ----------------- | ----------------------------- | -------------------- |
+| `--dir`, `-d`     | No default value   (required) | Where we are storing the app |
+| `--appName`, `-n` | Parent folder name (optional) | The name of your app |
+| `--appPort`, `-p` | 8000               (optional) | The posrt of you app |
 
 To put up your service you can do
 
