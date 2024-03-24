@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -38,6 +39,10 @@ func run(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	if AppName == "" {
+		AppName = removeNonAlphanumeric(filepath.Base(Dir))
+	}
+
 	generateDockerComposeFile()
 	generateNginxFiles()
 	generatePhpFiles()
@@ -56,19 +61,9 @@ func run(cmd *cobra.Command, args []string) {
 		".",
 	)
 	dockerCreateProjectCmd.Dir = Dir
-	executeBashCmd(*dockerCreateProjectCmd)
 
-	artisanMigrateCmd := exec.Command(
-		"docker-compose",
-		"-f",
-		composerFile,
-		"run",
-		"--rm",
-		"artisan",
-		"migrate",
-	)
-	artisanMigrateCmd.Dir = Dir
-	executeBashCmd(*artisanMigrateCmd)
+	fmt.Println("Downloading Laravel files...")
+	executeBashCmd(*dockerCreateProjectCmd)
 
 	updateLaravelEnvFile()
 }
@@ -81,7 +76,7 @@ var (
 )
 
 var createCmd = &cobra.Command{
-	Use:   "create [template type]",
+	Use:   "create [docker --dir=/abs/path]",
 	Args:  args,
 	Short: "Basic template using laravel",
 	Long:  "...",
@@ -284,12 +279,9 @@ func generateDockerComposeFile() {
 
 	valuesToReplace := make([][2]string, 0)
 
-	if AppName != "" {
-		AppName = filepath.Base(filepath.Dir(dstFile))
-	}
 	valuesToReplace = append(
 		valuesToReplace,
-		[2]string{"{{APP_NAME}}", removeNonAlphanumeric(AppName)},
+		[2]string{"{{APP_NAME}}", AppName},
 	)
 
 	valuesToReplace = append(
@@ -364,34 +356,26 @@ func generateReadmeFile() {
 }
 
 func executeBashCmd(bashCmd exec.Cmd) {
-	stdout, err := bashCmd.StdoutPipe()
-	if err != nil {
-		fmt.Println(err)
-		return
+	// Create a pipe to read the command output
+	reader, writer := io.Pipe()
+	bashCmd.Stdout = writer
+
+	// Start the command
+	go func() {
+		err := bashCmd.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+		writer.Close()
+	}()
+
+	// Read lines from the pipe
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
 	}
 
-	stderr, err := bashCmd.StderrPipe()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	if err := bashCmd.Start(); err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	scannerOut := bufio.NewScanner(stdout)
-	for scannerOut.Scan() {
-		fmt.Println(scannerOut.Text())
-	}
-
-	scannerErr := bufio.NewScanner(stderr)
-	for scannerErr.Scan() {
-		fmt.Println(scannerErr.Text())
-	}
-
-	if err := bashCmd.Wait(); err != nil {
-		fmt.Println(err)
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
 	}
 }
