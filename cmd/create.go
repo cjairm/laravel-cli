@@ -92,11 +92,21 @@ func init() {
 		return
 	}
 
-	createCmd.Flags().
-		StringVarP(&AppName, "appName", "n", "", "Name of your app. If not provided the name of parent folder will be taken")
+	createCmd.Flags().StringVarP(
+		&AppName,
+		"appName",
+		"n",
+		"",
+		"Name of your app. If not provided the name of parent folder will be taken",
+	)
 
-	createCmd.Flags().
-		IntVarP(&AppPort, "appPort", "p", 8000, "App port number. If not provided the port 8000 will be used")
+	createCmd.Flags().IntVarP(
+		&AppPort,
+		"appPort",
+		"p",
+		8000,
+		"App port number. If not provided the port 8000 will be used",
+	)
 
 	createCmd.Flags().StringVarP(
 		&Dir,
