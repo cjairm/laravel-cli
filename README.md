@@ -1,4 +1,4 @@
-Project Title
+laravel-cli command
 =============
 
 * [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -82,3 +82,5 @@ docker-compose run --rm npm [command]
 
 # Example. docker-compose run --rm npm update --no-save
 ```
+
+Enjoy! :smiley:
