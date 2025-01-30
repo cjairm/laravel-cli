@@ -28,7 +28,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/cjairm/laravel-cli.git ~/.local/share/laravel-cli >/dev/null
-echo 'alias laravel-cli="~/.local/share/laravel-cli >/dev/null"' >> ~/.zshrc
+echo 'alias laravel-cli="~/.local/share/laravel-cli/laravel-cli-<select-your-archtecture> >/dev/null"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
