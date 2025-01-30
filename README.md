@@ -24,22 +24,12 @@ Table of Contents
 
 To install the project, follow these steps (assuming you already installed `Docker`):
 
-Recommended to create new folder directory (if you want the command as global)
-
-```bash
-mkdir ~/my-custom/path && cd ~/my-custom/path
-```
-
 Clone the repository:
 
 ```bash
-git clone https://github.com/cjairm/laravel-cli.git
-
-################################################################
-### If you want to make it a global command...
-echo 'alias laravel-cli="~/my-custom/path"' >> ~/.zshrc
+git clone https://github.com/cjairm/laravel-cli.git ~/.local/share/laravel-cli >/dev/null
+echo 'alias laravel-cli="~/.local/share/laravel-cli >/dev/null"' >> ~/.zshrc
 source ~/.zshrc
-################################################################
 ```
 
 ### Usage
