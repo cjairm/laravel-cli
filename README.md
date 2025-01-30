@@ -74,4 +74,9 @@ docker-compose run --rm npm [command]
 # Example. docker-compose run --rm npm update --no-save
 ```
 
+Note. To build binary for Mac - Intel use
+```bash
+GOOS=darwin GOARCH=amd64 go build -o laravel-cli-amd main.go
+```
+
 Enjoy! :smiley:
